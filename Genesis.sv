@@ -1153,7 +1153,7 @@ wire piano_strobe;
 wire piano = status[56];
 miraclepiano miracle(
 	.clk(clk_sys),
-	.reset(reset_nes || !piano),
+	.reset(reset || !piano),
 	.strobe(piano_strobe),
 	.joypad_o(piano_joypad_do),
 	.joypad_clock(piano_clock),

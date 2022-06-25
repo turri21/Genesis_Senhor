@@ -1402,7 +1402,7 @@ jt12 fm
 	.din(ZBUS_DO),
 	.dout(FM_DO),
 	.en_hifi_pcm( EN_HIFI_PCM ),
-	//.ladder(LADDER),
+	.ladder(LADDER),
 	.snd_left(FM_left),
 	.snd_right(FM_right)
 );
