@@ -1407,8 +1407,8 @@ jt12 fm
 	.snd_right(FM_right)
 );
 
-wire signed [15:0] fm_adjust_l = FM_left;  //(FM_left << 4) + (FM_left << 2) + (FM_left << 1) + (FM_left >>> 2);
-wire signed [15:0] fm_adjust_r = FM_right; //(FM_right << 4) + (FM_right << 2) + (FM_right << 1) + (FM_right >>> 2);
+wire signed [15:0] fm_adjust_l = (FM_left  << 4) + (FM_left  << 2) + (FM_left  << 1) + (FM_left  >>> 2);
+wire signed [15:0] fm_adjust_r = (FM_right << 4) + (FM_right << 2) + (FM_right << 1) + (FM_right >>> 2);
 
 genesis_fm_lpf fm_lpf_l
 (
