@@ -3,7 +3,7 @@
 //  Copyright (c) 2017-2019 Sorgelig
 //
 //  YM2612 implementation by Jose Tejada Gomez. Twitter: @topapate
-//  Original Genesis code: Copyright (c) 2010-2013 Gregory Estrade (greg@torlus.com) 
+//  Original Genesis code: Copyright (c) 2010-2013 Gregory Estrade (greg@torlus.com)
 //
 //  This program is free software; you can redistribute it and/or modify it
 //  under the terms of the GNU General Public License as published by the Free
@@ -240,8 +240,8 @@ video_freak video_freak
 );
 
 // Status Bit Map:
-//             Upper                             Lower              
-// 0         1         2         3          4         5         6   
+//             Upper                             Lower
+// 0         1         2         3          4         5         6
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
 // XXXXXXXXXXXX XXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXX
@@ -258,21 +258,20 @@ localparam CONF_STR = {
 	"C,Cheats;",
 	"H1OO,Cheats Enabled,Yes,No;",
 	"-;",
-	"D0RG,Load Backup RAM;",
-	"D0RH,Save Backup RAM;",
-	"D0OD,Autosave,Off,On;",
+	"OD,Autosave,Off,On;",
+	"H6D0RG,Load Backup RAM;",
+	"H6D0RH,Save Backup RAM;",
 	"-;",
 
 	"P1,Audio & Video;",
 	"P1-;",
-	"P1oGH,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
-	"P1OU,320x224 Aspect,Original,Corrected;",
+	"P1oGH,Aspect Ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"P1O13,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
-	"P1-;",
 	"d5P1o2,Vertical Crop,Disabled,216p(5x);",
 	"d5P1oIL,Crop Offset,0,2,4,8,10,12,-12,-10,-8,-6,-4,-2;",
 	"P1oMN,Scale,Normal,V-Integer,Narrower HV-Integer,Wider HV-Integer;",
 	"P1-;",
+	"P1OU,320x224 Aspect,Original,Corrected;",
 	"P1OT,Border,No,Yes;",
 	"P1oEF,Composite Blend,Off,On,Adaptive;",
 	"P1OA,CRAM Dots,Off,On;",
@@ -285,12 +284,11 @@ localparam CONF_STR = {
 	"P2-;",
 	"P2O4,Swap Joysticks,No,Yes;",
 	"P2O5,6 Buttons Mode,No,Yes;",
+	"P2oD,SNAC,Off,On;",
 	"P2o57,Multitap,Disabled,4-Way,TeamPlayer: Port1,TeamPlayer: Port2,J-Cart;",
 	"P2-;",
 	"P2OIJ,Mouse,None,Port1,Port2;",
 	"P2OK,Mouse Flip Y,No,Yes;",
-	"P2-;",
-	"P2oD,Serial,OFF,SNAC;",
 	"P2-;",
 	"P2o89,Gun Control,Disabled,Joy1,Joy2,Mouse;",
 	"D4P2oA,Gun Fire,Joy,Mouse;",
@@ -312,7 +310,7 @@ localparam CONF_STR = {
 	"R0,Reset;",
 	"J1,A,B,C,Start,Mode,X,Y,Z;",
 	"jn,A,B,R,Start,Select,X,Y,L;", // name map to SNES layout.
-	"jp,Y,B,A,Start,Select,L,X,R;", // positional map to SNES layout (3 button friendly) 
+	"jp,Y,B,A,Start,Select,L,X,R;", // positional map to SNES layout (3 button friendly)
 	"V,v",`BUILD_DATE
 };
 
@@ -366,7 +364,7 @@ hps_io #(.CONF_STR(CONF_STR), .WIDE(1)) hps_io
 	.status(status),
 	.status_in({status[63:8],region_req,status[5:0]}),
 	.status_set(region_set),
-	.status_menumask({en216p,!gun_mode,~dbg_menu,status[8],~gg_available,~bk_ena}),
+	.status_menumask({status[13],en216p,!gun_mode,~dbg_menu,status[8],~gg_available,~bk_ena}),
 
 	.ioctl_download(ioctl_download),
 	.ioctl_index(ioctl_index),
@@ -556,7 +554,7 @@ system system
 
 	.DAC_LDATA(AUDIO_L),
 	.DAC_RDATA(AUDIO_R),
-	
+
 	.TURBO(status[26:25]),
 
 	.RED(r),
@@ -575,7 +573,7 @@ system system
 	.FAST_FIFO(fifo_quirk),
 	.SVP_QUIRK(svp_quirk),
 	.SCHAN_QUIRK(schan_quirk),
-	
+
 	.GG_RESET(code_download && ioctl_wr && !ioctl_addr),
 	.GG_EN(status[24]),
 	.GG_CODE(gg_code),
@@ -591,7 +589,7 @@ system system
 
 	.MOUSE(ps2_mouse),
 	.MOUSE_OPT(status[20:18]),
-	
+
 	.GUN_OPT(|gun_mode),
 	.GUN_TYPE(gun_type),
 	.GUN_SENSOR(lg_sensor),
@@ -633,7 +631,7 @@ system system
 	.ROM_ACK2(rom_rdack2),
 
 	.TRANSP_DETECT(TRANSP_DETECT),
-	
+
 	.PAUSE_EN(DBG_PAUSE_EN),
 	.BGA_EN(VDP_BGA_EN),
 	.BGB_EN(VDP_BGB_EN),
@@ -649,13 +647,13 @@ reg new_vmode;
 always @(posedge clk_sys) begin
 	reg old_pal;
 	int to;
-	
+
 	if(~(reset | cart_download)) begin
 		old_pal <= PAL;
 		if(old_pal != PAL) to <= 5000000;
 	end
 	else to <= 5000000;
-	
+
 	if(to) begin
 		to <= to - 1;
 		if(to == 1) new_vmode <= ~new_vmode;
@@ -667,13 +665,13 @@ always @(posedge clk_sys) begin
 	reg old_stb;
 	reg enter = 0;
 	reg esc = 0;
-	
+
 	old_stb <= ps2_key[10];
 	if(old_stb ^ ps2_key[10]) begin
 		if(ps2_key[7:0] == 'h5A) enter <= ps2_key[9];
 		if(ps2_key[7:0] == 'h76) esc   <= ps2_key[9];
 	end
-	
+
 	if(enter & esc) begin
 		dbg_menu <= ~dbg_menu;
 		enter <= 0;
@@ -685,7 +683,7 @@ end
 reg [1:0] res;
 always @(posedge clk_sys) begin
 	reg old_vbl;
-	
+
 	old_vbl <= vblank;
 	if(old_vbl & ~vblank) res <= resolution;
 end
@@ -842,7 +840,7 @@ ddram ddram
 	.rdaddr2(rom_addr2),
 	.dout2(rom_data2),
 	.rd_req2(rom_rd2),
-	.rd_ack2(rom_rdack2) 
+	.rd_ack2(rom_rdack2)
 );
 
 reg use_sdr;
@@ -893,12 +891,12 @@ always @(posedge clk_sys) begin
 					else if(hdr_e) region_req <= 2;
 					else if(hdr_j) region_req <= 0;
 					else region_req <= 1;
-				
+
 				1: if(hdr_e) region_req <= 2;
 					else if(hdr_u) region_req <= 1;
 					else if(hdr_j) region_req <= 0;
 					else region_req <= 2;
-				
+
 				2: if(hdr_u) region_req <= 1;
 					else if(hdr_j) region_req <= 0;
 					else if(hdr_e) region_req <= 2;
@@ -988,8 +986,8 @@ always @(posedge clk_sys) begin
 			else if(cart_id == "MK-1228 ") eeprom_quirk <= 1; // Greatest Heavyweights
 			else if(cart_id == "G-5538  ") eeprom_quirk <= 1; // Greatest Heavyweights JP
 			else if(cart_id == "00004076") eeprom_quirk <= 1; // Honoo no Toukyuuji Dodge Danpei
-			else if(cart_id == "T-12046 ") eeprom_quirk <= 1; // Mega Man - The Wily Wars 
-			else if(cart_id == "T-12053 ") eeprom_quirk <= 1; // Rockman Mega World 
+			else if(cart_id == "T-12046 ") eeprom_quirk <= 1; // Mega Man - The Wily Wars
+			else if(cart_id == "T-12053 ") eeprom_quirk <= 1; // Rockman Mega World
 			else if(cart_id == "G-4524  ") eeprom_quirk <= 1; // Ninja Burai Densetsu
 			else if(cart_id == "T-113016") noram_quirk  <= 1; // Puggsy fake ram check
 			else if(cart_id == "T-89016 ") fifo_quirk   <= 1; // Clue
@@ -1002,7 +1000,7 @@ always @(posedge clk_sys) begin
 			else if(cart_id == "MK-1137-") fmbusy_quirk <= 1; // Hellfire EU
 			else if(cart_id == "T-68???-") schan_quirk  <= 1; // Game no Kanzume Otokuyou
 			else if(cart_id == " GM 0000") sram00_quirk <= 1; // Sonic 1 Remastered
-			
+
 			// Lightgun device and timing offsets
 			if(cart_id == "MK-1533 ") begin						  // Body Count
 				gun_type  <= 0;
@@ -1033,7 +1031,6 @@ always @(posedge clk_sys) begin
 end
 
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
-
 
 wire downloading = cart_download;
 
@@ -1109,11 +1106,11 @@ wire [1:0] SER_OPT;
 always @(posedge clk_sys) begin
 	if (status[45]) begin
 		SERJOYSTICK_IN[0] <= USER_IN[1];//up
-		SERJOYSTICK_IN[1] <= USER_IN[0];//down	
-		SERJOYSTICK_IN[2] <= USER_IN[5];//left	
+		SERJOYSTICK_IN[1] <= USER_IN[0];//down
+		SERJOYSTICK_IN[2] <= USER_IN[5];//left
 		SERJOYSTICK_IN[3] <= USER_IN[3];//right
-		SERJOYSTICK_IN[4] <= USER_IN[2];//b TL		
-		SERJOYSTICK_IN[5] <= USER_IN[6];//c TR GPIO7			
+		SERJOYSTICK_IN[4] <= USER_IN[2];//b TL
+		SERJOYSTICK_IN[5] <= USER_IN[6];//c TR GPIO7
 		SERJOYSTICK_IN[6] <= USER_IN[4];//  TH
 		SERJOYSTICK_IN[7] <= 0;
 		SER_OPT[0] <= ~status[4];
@@ -1127,11 +1124,11 @@ always @(posedge clk_sys) begin
 		USER_OUT[4] <= SERJOYSTICK_OUT[6];
 	end else if (piano) begin
 		SERJOYSTICK_IN[0] <= piano_joypad_do;//up
-		SERJOYSTICK_IN[1] <= 0;//down	
-		SERJOYSTICK_IN[2] <= 0;//left	
+		SERJOYSTICK_IN[1] <= 0;//down
+		SERJOYSTICK_IN[2] <= 0;//left
 		SERJOYSTICK_IN[3] <= 0;//right
-		SERJOYSTICK_IN[4] <= 0;//b TL		
-		SERJOYSTICK_IN[5] <= 0;//c TR GPIO7			
+		SERJOYSTICK_IN[4] <= 0;//b TL
+		SERJOYSTICK_IN[5] <= 0;//c TR GPIO7
 		SERJOYSTICK_IN[6] <= 0;//  TH
 		SERJOYSTICK_IN[7] <= 0;
 		SER_OPT[0] <= 1'b0;
